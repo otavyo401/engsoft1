@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReservaUFSM — Protótipo</title>
+<style>
+  :root{
+    --azul:#0b3d6e; --azul2:#145da0; --fundo:#f3f5f8; --borda:#d9dee6; --texto:#1d2430; --cinza:#5b6675;
+    --verde:#1f8a4c; --verde-bg:#e3f4ea; --vermelho:#b3261e; --vermelho-bg:#fbe5e3; --amarelo:#8a6100; --amarelo-bg:#fdf1d3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--fundo);color:var(--texto);font-size:15px}
+  header{background:var(--azul);color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  header h1{font-size:19px;margin:0;font-weight:600;letter-spacing:.3px}
+  header h1 span{opacity:.7;font-weight:400}
+  nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+  nav button{background:transparent;border:0;color:#cfe0f2;padding:8px 12px;border-radius:6px;font-size:14px;cursor:pointer}
+  nav button.ativo,nav button:hover{background:rgba(255,255,255,.14);color:#fff}
+  .usuario{font-size:13px;display:flex;align-items:center;gap:10px}
+  .usuario button{background:#fff;color:var(--azul);border:0;border-radius:6px;padding:6px 10px;cursor:pointer;font-weight:600}
+  main{max-width:1000px;margin:0 auto;padding:22px 16px 60px}
+  h2{margin:0 0 4px;font-size:22px}
+  .sub{color:var(--cinza);margin:0 0 18px}
+  .card{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:16px}
+  .grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+  .esp h3{margin:0 0 4px;font-size:16px}
+  .esp .meta{color:var(--cinza);font-size:13px;margin-bottom:10px}
+  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;background:#e8eef6;color:var(--azul2);margin:0 4px 4px 0}
+  label{display:block;font-size:13px;font-weight:600;margin:0 0 4px;color:#333}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--borda);border-radius:7px;font:inherit;background:#fff}
+  textarea{resize:vertical;min-height:60px}
+  .linha{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:12px}
+  .btn{background:var(--azul2);color:#fff;border:0;border-radius:7px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.sec{background:#fff;color:var(--azul2);border:1px solid var(--azul2)}
+  .btn.verde{background:var(--verde)} .btn.verm{background:var(--vermelho)}
+  .btn.peq{padding:6px 10px;font-size:13px}
+  .filtros{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:end}
+  .filtros>div{min-width:170px}
+  table{width:100%;border-collapse:collapse;background:#fff}
+  th,td{text-align:left;padding:10px;border-bottom:1px solid var(--borda);font-size:14px;vertical-align:top}
+  th{background:#f7f9fc;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--cinza)}
+  .tabela{border:1px solid var(--borda);border-radius:10px;overflow:auto}
+  .st{font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+  .st.Pendente{background:var(--amarelo-bg);color:var(--amarelo)}
+  .st.Aprovada{background:var(--verde-bg);color:var(--verde)}
+  .st.Recusada{background:var(--vermelho-bg);color:var(--vermelho)}
+  .st.Cancelada{background:#eceff3;color:var(--cinza)}
+  .msg{padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px}
+  .msg.ok{background:var(--verde-bg);color:var(--verde)} .msg.erro{background:var(--vermelho-bg);color:var(--vermelho)}
+  .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:4px;margin:8px 0 4px}
+  .slot{font-size:12px;text-align:center;padding:6px 0;border-radius:5px;background:var(--verde-bg);color:var(--verde)}
+  .slot.ocup{background:var(--vermelho-bg);color:var(--vermelho);text-decoration:line-through}
+  .slot.pend{background:var(--amarelo-bg);color:var(--amarelo)}
+  .legenda{font-size:12px;color:var(--cinza);display:flex;gap:14px;flex-wrap:wrap}
+  .legenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+  .duas{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.duas{grid-template-columns:1fr}}
+  .login{max-width:400px;margin:60px auto}
+  .login h2{text-align:center}
+  .demo{font-size:13px;color:var(--cinza);margin-top:16px;border-top:1px solid var(--borda);padding-top:12px}
+  .demo button{display:block;width:100%;text-align:left;margin:6px 0;background:#f7f9fc;border:1px solid var(--borda);border-radius:6px;padding:7px 10px;cursor:pointer;font:inherit;font-size:13px}
+  .barra{display:flex;align-items:center;gap:10px;margin:8px 0}
+  .barra .nome{width:210px;font-size:14px;flex-shrink:0}
+  .barra .trilho{flex:1;background:#eef1f5;border-radius:4px;height:22px}
+  .barra .cheio{background:var(--azul2);height:22px;border-radius:4px}
+  .barra .num{width:30px;text-align:right;font-weight:700}
+  .vazio{color:var(--cinza);text-align:center;padding:28px}
+  .acoes{display:flex;gap:6px;flex-wrap:wrap}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+  .kpi .v{font-size:26px;font-weight:700} .kpi .l{font-size:13px;color:var(--cinza)}
+  footer{color:var(--cinza);font-size:12px;text-align:center;padding:20px}
+</style>
+</head>
+<body>
+<header id="topo" style="display:none">
+  <h1>ReservaUFSM <span>| Reserva de Espaços</span></h1>
+  <nav id="menu"></nav>
+  <div class="usuario"><span id="quem"></span><button onclick="sair()">Sair</button></div>
+</header>
+<main id="app"></main>
+<footer>Protótipo — Engenharia de Software I · UFSM · funciona sem internet, dados salvos neste navegador · <a href="#" onclick="restaurarDados();return false">restaurar dados de exemplo</a></footer>
+
+<script>
+/* ===================== DADOS ===================== */
+const USUARIOS = [
+  {id:1, nome:"Profa. Ana Souza", email:"ana.prof@ufsm.br", senha:"123", perfil:"solicitante", vinculo:"Professor"},
+  {id:2, nome:"João Lima",        email:"joao.aluno@ufsm.br", senha:"123", perfil:"solicitante", vinculo:"Aluno"},
+  {id:3, nome:"Secretaria CT",    email:"secretaria@ufsm.br", senha:"123", perfil:"gestor",      vinculo:"Servidor"}
+];
+const TIPOS = ["Sala de aula","Laboratório","Auditório"];
+const STATUS_ATIVOS = ["Pendente","Aprovada"];
+const CHAVE = "reservaufsm_dados_v1";
+let memoria = null;   // usado se o navegador bloquear o localStorage
+
+function hoje(desloc=0){ const d=new Date(); d.setDate(d.getDate()+desloc); return iso(d); }
+function iso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function proxUtil(desloc){ const d=new Date(); d.setDate(d.getDate()+desloc); if(d.getDay()===0) d.setDate(d.getDate()+1); return iso(d); }
+
+function dadosIniciais(){
+  return {
+    espacos:[
+      {id:1,nome:"Sala 302",tipo:"Sala de aula",predio:"Prédio 7 — CT",capacidade:45,recursos:"Projetor, quadro branco",ativo:true},
+      {id:2,nome:"Sala 105",tipo:"Sala de aula",predio:"Prédio 7 — CT",capacidade:30,recursos:"TV, quadro branco",ativo:true},
+      {id:3,nome:"Lab. de Informática 1",tipo:"Laboratório",predio:"Prédio 7 — CT",capacidade:35,recursos:"35 computadores, projetor",ativo:true},
+      {id:4,nome:"Lab. de Redes",tipo:"Laboratório",predio:"Prédio 10 — CT",capacidade:20,recursos:"20 computadores, switches",ativo:true},
+      {id:5,nome:"Auditório do CT",tipo:"Auditório",predio:"Prédio 9 — CT",capacidade:180,recursos:"Som, projetor, palco",ativo:true},
+      {id:6,nome:"Sala 210",tipo:"Sala de aula",predio:"Prédio 10 — CT",capacidade:60,recursos:"Projetor",ativo:true}
+    ],
+    reservas:[
+      {id:1,espacoId:3,usuarioId:1,data:proxUtil(1),inicio:"08:30",fim:"10:30",finalidade:"Aula prática de Algoritmos",status:"Aprovada",motivo:""},
+      {id:2,espacoId:3,usuarioId:1,data:proxUtil(1),inicio:"14:00",fim:"16:00",finalidade:"Monitoria de Programação",status:"Pendente",motivo:""},
+      {id:3,espacoId:1,usuarioId:2,data:proxUtil(2),inicio:"19:00",fim:"21:00",finalidade:"Grupo de estudos de Cálculo",status:"Pendente",motivo:""},
+      {id:4,espacoId:5,usuarioId:1,data:proxUtil(3),inicio:"09:00",fim:"12:00",finalidade:"Semana Acadêmica — palestra",status:"Aprovada",motivo:""},
+      {id:5,espacoId:2,usuarioId:2,data:proxUtil(2),inicio:"10:00",fim:"11:00",finalidade:"Reunião do diretório acadêmico",status:"Recusada",motivo:"Sala reservada para prova nesse horário."},
+      {id:6,espacoId:1,usuarioId:1,data:proxUtil(4),inicio:"13:30",fim:"15:30",finalidade:"Aula de Engenharia de Software",status:"Aprovada",motivo:""}
+    ],
+    proxId:{espaco:7,reserva:7}
+  };
+}
+function carregar(){
+  try{ const t=localStorage.getItem(CHAVE); if(t) return JSON.parse(t); }catch(e){}
+  return memoria || dadosIniciais();
+}
+function salvar(){ memoria=db; try{ localStorage.setItem(CHAVE,JSON.stringify(db)); }catch(e){} }
+function restaurarDados(){ if(confirm("Apagar as alterações e voltar aos dados de exemplo?")){ db=dadosIniciais(); salvar(); render(); } }
+
+let db = carregar();
+let sessao = null;
+try{ const s=sessionStorage.getItem("reservaufsm_sessao"); if(s) sessao=USUARIOS.find(u=>u.id===+s)||null; }catch(e){}
+let tela = null, param = null, aviso = null;
+
+/* ===================== UTILITÁRIOS ===================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const min = h => { const [a,b]=h.split(":").map(Number); return a*60+b; };
+const hhmm = m => String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
+const dataBR = d => d.split("-").reverse().join("/");
+const espaco = id => db.espacos.find(e=>e.id===id);
+const usuario = id => USUARIOS.find(u=>u.id===id);
+const diaSemana = d => ["dom","seg","ter","qua","qui","sex","sáb"][new Date(d+"T12:00").getDay()];
+function mostrarAviso(){ if(!aviso) return ""; const h=`<div class="msg ${aviso.tipo}">${esc(aviso.texto)}</div>`; aviso=null; return h; }
+function ir(t,p=null){ tela=t; param=p; render(); window.scrollTo(0,0); }
+
+/* ===================== RF01 / RF11 — LOGIN ===================== */
+function telaLogin(){
+  $("#topo").style.display="none";
+  $("#app").innerHTML = `
+  <div class="login card">
+    <h2>ReservaUFSM</h2>
+    <p class="sub" style="text-align:center">Reserva de salas, laboratórios e auditórios</p>
+    ${mostrarAviso()}
+    <form onsubmit="entrar(event)">
+      <div style="margin-bottom:12px"><label>E-mail institucional</label><input id="email" type="email" required placeholder="nome@ufsm.br"></div>
+      <div style="margin-bottom:16px"><label>Senha</label><input id="senha" type="password" required></div>
+      <button class="btn" style="width:100%">Entrar</button>
+    </form>
+    <div class="demo">Usuários de demonstração (senha <b>123</b>) — clique para preencher:
+      ${USUARIOS.map(u=>`<button onclick="preencher('${u.email}')">${esc(u.nome)} — ${u.perfil==="gestor"?"Gestor":"Solicitante ("+u.vinculo+")"}<br><small>${u.email}</small></button>`).join("")}
+    </div>
+  </div>`;
+}
+function preencher(e){ $("#email").value=e; $("#senha").value="123"; }
+function entrar(ev){
+  ev.preventDefault();
+  const u = USUARIOS.find(u=>u.email===$("#email").value.trim().toLowerCase() && u.senha===$("#senha").value);
+  if(!u){ aviso={tipo:"erro",texto:"E-mail ou senha incorretos."}; return telaLogin(); }
+  sessao=u; try{ sessionStorage.setItem("reservaufsm_sessao",u.id); }catch(e){}
+  ir(u.perfil==="gestor"?"solicitacoes":"espacos");
+}
+function sair(){ sessao=null; try{ sessionStorage.removeItem("reservaufsm_sessao"); }catch(e){} tela=null; render(); }
+
+/* ===================== MENU (RNF05 — cada perfil vê só suas telas) ===================== */
+function menu(){
+  const itens = sessao.perfil==="gestor"
+    ? [["solicitacoes","Solicitações"],["gerEspacos","Espaços"],["relatorio","Relatório"]]
+    : [["espacos","Espaços"],["minhas","Minhas reservas"]];
+  const pend = db.reservas.filter(r=>r.status==="Pendente").length;
+  $("#menu").innerHTML = itens.map(([t,n])=>`<button class="${tela===t||(tela==="reservar"&&t==="espacos")?"ativo":""}" onclick="ir('${t}')">${n}${t==="solicitacoes"&&pend?` (${pend})`:""}</button>`).join("");
+  $("#quem").textContent = sessao.nome+" · "+(sessao.perfil==="gestor"?"Gestor":sessao.vinculo);
+  $("#topo").style.display="flex";
+}
+
+/* ===================== RF02 — LISTAR ESPAÇOS ===================== */
+let filtro = {tipo:"",cap:""};
+function telaEspacos(){
+  const lista = db.espacos.filter(e=>e.ativo && (!filtro.tipo||e.tipo===filtro.tipo) && (!filtro.cap||e.capacidade>=+filtro.cap));
+  $("#app").innerHTML = `
+    <h2>Espaços disponíveis</h2><p class="sub">Escolha um espaço para ver a ocupação e solicitar uma reserva.</p>
+    ${mostrarAviso()}
+    <div class="filtros">
+      <div><label>Tipo</label><select onchange="filtro.tipo=this.value;telaEspacos()"><option value="">Todos</option>${TIPOS.map(t=>`<option ${filtro.tipo===t?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div><label>Capacidade mínima</label><input type="number" min="1" value="${filtro.cap}" placeholder="Ex.: 30" onchange="filtro.cap=this.value;telaEspacos()"></div>
+    </div>
+    ${lista.length?`<div class="grade">${lista.map(e=>`
+      <div class="card esp">
+        <h3>${esc(e.nome)}</h3>
+        <div class="meta">${esc(e.predio)} · ${e.capacidade} lugares</div>
+        <span class="tag">${e.tipo}</span>${e.recursos.split(",").map(r=>`<span class="tag">${esc(r.trim())}</span>`).join("")}
+        <div style="margin-top:12px"><button class="btn peq" onclick="ir('reservar',${e.id})">Ver horários e reservar</button></div>
+      </div>`).join("")}</div>`:`<div class="card vazio">Nenhum espaço encontrado com esses filtros.</div>`}`;
+  menu();
+}
+
+/* ===================== RF03 / RF04 / RF05 — DISPONIBILIDADE E RESERVA ===================== */
+let dataSel = null;
+function telaReservar(){
+  const e = espaco(param); if(!e) return ir("espacos");
+  if(!dataSel) dataSel = proxUtil(1);
+  const doDia = db.reservas.filter(r=>r.espacoId===e.id && r.data===dataSel && STATUS_ATIVOS.includes(r.status));
+  let slots="";
+  for(let m=min("07:30"); m<min("22:30"); m+=30){
+    const r = doDia.find(r=>min(r.inicio)<m+30 && min(r.fim)>m);
+    slots += `<div class="slot ${r?(r.status==="Aprovada"?"ocup":"pend"):""}" title="${r?esc(r.finalidade):"Livre"}">${hhmm(m)}</div>`;
+  }
+  const domingo = new Date(dataSel+"T12:00").getDay()===0;
+  $("#app").innerHTML = `
+    <button class="btn sec peq" onclick="ir('espacos')" style="margin-bottom:14px">← Voltar aos espaços</button>
+    <h2>${esc(e.nome)}</h2><p class="sub">${e.tipo} · ${esc(e.predio)} · ${e.capacidade} lugares · ${esc(e.recursos)}</p>
+    ${mostrarAviso()}
+    <div class="duas">
+      <div class="card">
+        <label>Data</label>
+        <input type="date" value="${dataSel}" min="${hoje()}" max="${hoje(60)}" onchange="dataSel=this.value;guardarForm();telaReservar()">
+        <p style="margin:12px 0 0;font-weight:600">Ocupação em ${dataBR(dataSel)} (${diaSemana(dataSel)})</p>
+        ${domingo?`<p class="msg erro" style="margin-top:8px">Não há reservas aos domingos (RN01).</p>`:`<div class="slots">${slots}</div>
+        <div class="legenda"><span><i style="background:var(--verde-bg);border:1px solid var(--verde)"></i>Livre</span><span><i style="background:var(--amarelo-bg);border:1px solid var(--amarelo)"></i>Pendente</span><span><i style="background:var(--vermelho-bg);border:1px solid var(--vermelho)"></i>Aprovada</span></div>`}
+        ${doDia.length?`<div style="margin-top:12px;font-size:13px">${doDia.sort((a,b)=>a.inicio.localeCompare(b.inicio)).map(r=>`<div>• ${r.inicio}–${r.fim} <span class="st ${r.status}">${r.status}</span></div>`).join("")}</div>`:""}
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Solicitar reserva</h3>
+        <form onsubmit="solicitar(event,${e.id})">
+          <div class="linha">
+            <div><label>Início</label><input id="fIni" type="time" step="1800" min="07:30" max="22:00" value="${formTmp.ini||""}" required></div>
+            <div><label>Fim</label><input id="fFim" type="time" step="1800" min="08:00" max="22:30" value="${formTmp.fim||""}" required></div>
+          </div>
+          <div style="margin-bottom:14px"><label>Finalidade</label><textarea id="fFin" required maxlength="200" placeholder="Ex.: Aula prática de Banco de Dados">${esc(formTmp.fin||"")}</textarea></div>
+          <button class="btn" style="width:100%">Enviar solicitação</button>
+          <p style="font-size:12px;color:var(--cinza);margin:10px 0 0">Horário 07:30–22:30, seg. a sáb., de 30 min a 4 h. A reserva fica pendente até a aprovação da secretaria.</p>
+        </form>
+      </div>
+    </div>`;
+  menu();
+}
+let formTmp = {};
+function guardarForm(){ const i=$("#fIni"); if(i) formTmp={ini:i.value,fim:$("#fFim").value,fin:$("#fFin").value}; }
+
+function validarReserva(espacoId,data,ini,fim,ignorarId=null){
+  const e = espaco(espacoId);
+  if(!data) return "Informe a data.";
+  if(data < hoje()) return "Não é possível reservar datas passadas (RN03).";
+  if(data > hoje(60)) return "Reservas só podem ser feitas com até 60 dias de antecedência (RN03).";
+  if(new Date(data+"T12:00").getDay()===0) return "Não há reservas aos domingos (RN01).";
+  if(min(ini) < min("07:30") || min(fim) > min("22:30")) return "O horário deve estar entre 07:30 e 22:30 (RN01).";
+  if(min(fim) <= min(ini)) return "A hora de fim deve ser maior que a de início (RN02).";
+  const dur = min(fim)-min(ini);
+  if(dur < 30 || dur > 240) return "A reserva deve durar entre 30 minutos e 4 horas (RN02).";
+  if(data===hoje()){ const agora=new Date(); if(min(ini) < agora.getHours()*60+agora.getMinutes()) return "Esse horário de hoje já passou (RN03)."; }
+  if(sessao.vinculo==="Aluno" && e.tipo!=="Sala de aula") return "Alunos só podem reservar salas de aula (RN08).";
+  const conflito = db.reservas.find(r=>r.id!==ignorarId && r.espacoId===espacoId && r.data===data && STATUS_ATIVOS.includes(r.status) && min(r.inicio)<min(fim) && min(r.fim)>min(ini));
+  if(conflito) return `Conflito de horário: o espaço já tem reserva ${conflito.status.toLowerCase()} das ${conflito.inicio} às ${conflito.fim} (RN04).`;
+  return null;
+}
+function solicitar(ev,espacoId){
+  ev.preventDefault(); guardarForm();
+  const erro = validarReserva(espacoId,dataSel,formTmp.ini,formTmp.fim);
+  if(erro){ aviso={tipo:"erro",texto:erro}; return telaReservar(); }
+  db.reservas.push({id:db.proxId.reserva++,espacoId,usuarioId:sessao.id,data:dataSel,inicio:formTmp.ini,fim:formTmp.fim,finalidade:formTmp.fin.trim(),status:"Pendente",motivo:""});
+  salvar(); formTmp={};
+  aviso={tipo:"ok",texto:`Solicitação enviada: ${espaco(espacoId).nome}, ${dataBR(dataSel)}. Aguarde a aprovação da secretaria.`};
+  ir("minhas");
+}
+
+/* ===================== RF06 / RF07 — MINHAS RESERVAS ===================== */
+function telaMinhas(){
+  const lista = db.reservas.filter(r=>r.usuarioId===sessao.id).sort((a,b)=>(b.data+b.inicio).localeCompare(a.data+a.inicio));
+  $("#app").innerHTML = `
+    <h2>Minhas reservas</h2><p class="sub">Acompanhe o status das suas solicitações.</p>
+    ${mostrarAviso()}
+    ${lista.length?`<div class="tabela"><table>
+      <tr><th>Espaço</th><th>Data</th><th>Horário</th><th>Finalidade</th><th>Status</th><th></th></tr>
+      ${lista.map(r=>{ const podeCancelar = STATUS_ATIVOS.includes(r.status) && (r.data>hoje() || (r.data===hoje())); return `
+      <tr><td>${esc(espaco(r.espacoId).nome)}</td><td>${dataBR(r.data)}</td><td>${r.inicio}–${r.fim}</td>
+      <td>${esc(r.finalidade)}${r.motivo?`<div style="color:var(--vermelho);font-size:13px;margin-top:4px">Motivo: ${esc(r.motivo)}</div>`:""}</td>
+      <td><span class="st ${r.status}">${r.status}</span></td>
+      <td>${podeCancelar?`<button class="btn sec peq" onclick="cancelar(${r.id})">Cancelar</button>`:""}</td></tr>`;}).join("")}
+    </table></div>`:`<div class="card vazio">Você ainda não fez reservas. <a href="#" onclick="ir('espacos');return false">Ver espaços</a></div>`}`;
+  menu();
+}
+function cancelar(id){
+  const r = db.reservas.find(r=>r.id===id);
+  if(!confirm(`Cancelar a reserva de ${espaco(r.espacoId).nome} em ${dataBR(r.data)}, ${r.inicio}–${r.fim}?`)) return;
+  r.status="Cancelada"; salvar(); aviso={tipo:"ok",texto:"Reserva cancelada. O horário foi liberado."}; telaMinhas();
+}
+
+/* ===================== RF08 — AVALIAR SOLICITAÇÕES (GESTOR) ===================== */
+function telaSolicitacoes(){
+  const pend = db.reservas.filter(r=>r.status==="Pendente").sort((a,b)=>(a.data+a.inicio).localeCompare(b.data+b.inicio));
+  const recentes = db.reservas.filter(r=>r.status!=="Pendente").sort((a,b)=>b.id-a.id).slice(0,6);
+  $("#app").innerHTML = `
+    <h2>Solicitações pendentes</h2><p class="sub">Aprove ou recuse os pedidos de reserva.</p>
+    ${mostrarAviso()}
+    ${pend.length?`<div class="tabela"><table>
+      <tr><th>Solicitante</th><th>Espaço</th><th>Data e horário</th><th>Finalidade</th><th>Ações</th></tr>
+      ${pend.map(r=>`<tr><td>${esc(usuario(r.usuarioId).nome)}<br><small style="color:var(--cinza)">${usuario(r.usuarioId).vinculo}</small></td>
+      <td>${esc(espaco(r.espacoId).nome)}</td><td>${dataBR(r.data)} (${diaSemana(r.data)})<br>${r.inicio}–${r.fim}</td><td>${esc(r.finalidade)}</td>
+      <td><div class="acoes"><button class="btn verde peq" onclick="avaliar(${r.id},true)">Aprovar</button><button class="btn verm peq" onclick="avaliar(${r.id},false)">Recusar</button></div></td></tr>`).join("")}
+    </table></div>`:`<div class="card vazio">Nenhuma solicitação pendente.</div>`}
+    <h3 style="margin-top:28px">Avaliadas recentemente</h3>
+    <div class="tabela"><table><tr><th>Espaço</th><th>Data</th><th>Solicitante</th><th>Status</th></tr>
+    ${recentes.map(r=>`<tr><td>${esc(espaco(r.espacoId).nome)}</td><td>${dataBR(r.data)} ${r.inicio}–${r.fim}</td><td>${esc(usuario(r.usuarioId).nome)}</td><td><span class="st ${r.status}">${r.status}</span></td></tr>`).join("")}
+    </table></div>`;
+  menu();
+}
+function avaliar(id,aprovar){
+  const r = db.reservas.find(r=>r.id===id);
+  if(aprovar){
+    const conflito = db.reservas.find(x=>x.id!==id && x.espacoId===r.espacoId && x.data===r.data && x.status==="Aprovada" && min(x.inicio)<min(r.fim) && min(x.fim)>min(r.inicio));
+    if(conflito){ aviso={tipo:"erro",texto:"Não é possível aprovar: já existe reserva aprovada nesse horário (RN04)."}; return telaSolicitacoes(); }
+    r.status="Aprovada"; aviso={tipo:"ok",texto:`Reserva aprovada: ${espaco(r.espacoId).nome}, ${dataBR(r.data)} ${r.inicio}–${r.fim}.`};
+  }else{
+    const m = prompt("Informe o motivo da recusa (obrigatório):");
+    if(m===null) return;
+    if(!m.trim()){ aviso={tipo:"erro",texto:"A recusa exige um motivo (RN06)."}; return telaSolicitacoes(); }
+    r.status="Recusada"; r.motivo=m.trim(); aviso={tipo:"ok",texto:"Reserva recusada. O solicitante verá o motivo."};
+  }
+  salvar(); telaSolicitacoes();
+}
+
+/* ===================== RF09 — GERENCIAR ESPAÇOS (GESTOR) ===================== */
+function telaGerEspacos(){
+  const ed = param ? espaco(param) : null;
+  $("#app").innerHTML = `
+    <h2>Gerenciar espaços</h2><p class="sub">Cadastre, edite ou desative salas, laboratórios e auditórios.</p>
+    ${mostrarAviso()}
+    <div class="card" style="margin-bottom:18px">
+      <h3 style="margin-top:0">${ed?"Editar: "+esc(ed.nome):"Novo espaço"}</h3>
+      <form onsubmit="salvarEspaco(event)">
+        <div class="linha">
+          <div><label>Nome</label><input id="eNome" required value="${esc(ed?.nome)}"></div>
+          <div><label>Tipo</label><select id="eTipo">${TIPOS.map(t=>`<option ${ed?.tipo===t?"selected":""}>${t}</option>`).join("")}</select></div>
+          <div><label>Prédio</label><input id="ePredio" required value="${esc(ed?.predio)}"></div>
+          <div><label>Capacidade</label><input id="eCap" type="number" min="1" max="1000" required value="${ed?.capacidade??""}"></div>
+        </div>
+        <div style="margin-bottom:12px"><label>Recursos (separados por vírgula)</label><input id="eRec" value="${esc(ed?.recursos)}" placeholder="Projetor, quadro branco"></div>
+        <div class="acoes"><button class="btn">${ed?"Salvar alterações":"Cadastrar espaço"}</button>${ed?`<button type="button" class="btn sec" onclick="ir('gerEspacos')">Cancelar edição</button>`:""}</div>
+      </form>
+    </div>
+    <div class="tabela"><table>
+      <tr><th>Nome</th><th>Tipo</th><th>Prédio</th><th>Cap.</th><th>Situação</th><th>Ações</th></tr>
+      ${db.espacos.map(e=>`<tr style="${e.ativo?"":"opacity:.55"}"><td>${esc(e.nome)}</td><td>${e.tipo}</td><td>${esc(e.predio)}</td><td>${e.capacidade}</td>
+      <td>${e.ativo?'<span class="st Aprovada">Ativo</span>':'<span class="st Cancelada">Desativado</span>'}</td>
+      <td><div class="acoes"><button class="btn sec peq" onclick="ir('gerEspacos',${e.id})">Editar</button><button class="btn sec peq" onclick="alternarEspaco(${e.id})">${e.ativo?"Desativar":"Reativar"}</button></div></td></tr>`).join("")}
+    </table></div>`;
+  menu();
+}
+function salvarEspaco(ev){
+  ev.preventDefault();
+  const dados = {nome:$("#eNome").value.trim(),tipo:$("#eTipo").value,predio:$("#ePredio").value.trim(),capacidade:+$("#eCap").value,recursos:$("#eRec").value.trim()};
+  const dup = db.espacos.find(e=>e.nome.toLowerCase()===dados.nome.toLowerCase() && e.predio.toLowerCase()===dados.predio.toLowerCase() && e.id!==param);
+  if(dup){ aviso={tipo:"erro",texto:"Já existe um espaço com esse nome nesse prédio."}; return telaGerEspacos(); }
+  if(param){ Object.assign(espaco(param),dados); aviso={tipo:"ok",texto:"Espaço atualizado."}; }
+  else{ db.espacos.push({id:db.proxId.espaco++,...dados,ativo:true}); aviso={tipo:"ok",texto:"Espaço cadastrado."}; }
+  salvar(); ir("gerEspacos");
+}
+function alternarEspaco(id){
+  const e = espaco(id);
+  if(e.ativo && !confirm(`Desativar "${e.nome}"? Ele deixa de aparecer para novos pedidos, mas o histórico é mantido (RN07).`)) return;
+  e.ativo=!e.ativo; salvar(); aviso={tipo:"ok",texto:e.ativo?"Espaço reativado.":"Espaço desativado."}; telaGerEspacos();
+}
+
+/* ===================== RF10 — RELATÓRIO (GESTOR) ===================== */
+function telaRelatorio(){
+  const cont = s => db.reservas.filter(r=>r.status===s).length;
+  const porEsp = db.espacos.map(e=>({e,n:db.reservas.filter(r=>r.espacoId===e.id&&r.status==="Aprovada").length})).sort((a,b)=>b.n-a.n);
+  const max = Math.max(1,...porEsp.map(x=>x.n));
+  $("#app").innerHTML = `
+    <h2>Relatório de uso</h2><p class="sub">Resumo das reservas registradas no sistema.</p>
+    <div class="kpis">
+      <div class="card kpi"><div class="v">${db.reservas.length}</div><div class="l">Reservas no total</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--verde)">${cont("Aprovada")}</div><div class="l">Aprovadas</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--amarelo)">${cont("Pendente")}</div><div class="l">Pendentes</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--vermelho)">${cont("Recusada")}</div><div class="l">Recusadas</div></div>
+    </div>
+    <div class="card"><h3 style="margin-top:0">Reservas aprovadas por espaço</h3>
+      ${porEsp.map(x=>`<div class="barra"><div class="nome">${esc(x.e.nome)}${x.e.ativo?"":" (desativado)"}</div><div class="trilho"><div class="cheio" style="width:${x.n/max*100}%"></div></div><div class="num">${x.n}</div></div>`).join("")}
+    </div>`;
+  menu();
+}
+
+/* ===================== ROTEAMENTO ===================== */
+function render(){
+  if(!sessao) return telaLogin();
+  const permitidas = sessao.perfil==="gestor" ? ["solicitacoes","gerEspacos","relatorio"] : ["espacos","reservar","minhas"];
+  if(!permitidas.includes(tela)) tela = permitidas[0];
+  ({espacos:telaEspacos,reservar:telaReservar,minhas:telaMinhas,solicitacoes:telaSolicitacoes,gerEspacos:telaGerEspacos,relatorio:telaRelatorio})[tela]();
+}
+render();
+</script>
+</body>
+</html>
